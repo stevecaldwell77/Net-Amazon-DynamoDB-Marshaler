@@ -7,8 +7,8 @@ BEGIN { use_ok('Net::Amazon::DynamoDB::Marshaler'); }
 sub test_undef() {
     is_deeply(
         dynamodb_marshal({ user_id => undef }),
-        { user_id => { BOOL => 1 } },
-        'boolean marshalled to BOOL',
+        { user_id => { NULL => 1 } },
+        'undef marshalled to NULL',
     );
 }
 

@@ -7,12 +7,66 @@ our $VERSION = '0.01';
 use parent qw(Exporter);
 our @EXPORT = qw(dynamodb_marshal dynamodb_unmarshal);
 
+use boolean qw(isBoolean);
+use Scalar::Util qw(looks_like_number blessed);
+
 sub dynamodb_marshal {
-    return {};
+    my ($attrs) = @_;
+    die __PACKAGE__.'dynamodb_marshal(): argument must be a hashref' unless (
+        ref $attrs
+        && ref $attrs eq 'HASH'
+    );
+    return _marshal_hashref($attrs);
 }
 
 sub dynamodb_unmarshal {
     return {};
+}
+
+sub _marshal_hashref {
+    my ($attrs) = @_;
+    return { map { $_ => _marshal_val($attrs->{$_}) } keys %$attrs };
+}
+
+sub _marshal_val {
+    my ($val) = @_;
+    my $type = _val_type($val);
+
+    return { $type => $val } if $type =~ /^(N|S)$/;
+    return { $type => 1 } if $type eq 'NULL';
+    return { $type => $val ? 1 : 0 } if $type eq 'BOOL';
+    return { $type => [ $val->members ] } if $type =~ /^(NS|SS)$/;
+    return { $type => [ map { _marshal_val($_) } @$val ] } if ($type eq 'L');
+    return { $type => { map { $_ => _marshal_val($val->{$_}) } keys %$val } } if ($type eq 'M');
+
+    die "don't know how to marshal type of $type";
+}
+
+sub _val_type {
+    my ($val) = @_;
+
+    return 'NULL' if ! defined $val;
+    return 'N' if !ref $val && looks_like_number($val);
+    return 'S' if !ref $val;
+
+    return 'BOOL' if isBoolean($val);
+
+    my $ref = ref $val;
+    return 'L' if $ref eq 'ARRAY';
+    return 'M' if $ref eq 'HASH';
+
+    if (blessed($val) and $val->isa('Set::Object')) {
+        my @types = map { _val_type($_) } $val->members;
+        die "Sets can only contain strings and numbers, found $_"
+            for grep { !/^(S|N)$/ } @types;
+        if (grep { /^S$/ } @types) {
+            return 'SS';
+        } else {
+            return 'NS';
+        }
+    }
+
+    die __PACKAGE__.": unable to marshal value: $val";
 }
 
 1;
