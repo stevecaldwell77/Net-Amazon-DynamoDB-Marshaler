@@ -4,6 +4,17 @@ use strict;
 use 5.008_005;
 our $VERSION = '0.01';
 
+use parent qw(Exporter);
+our @EXPORT = qw(dynamodb_marshal dynamodb_unmarshal);
+
+sub dynamodb_marshal {
+    return {};
+}
+
+sub dynamodb_unmarshal {
+    return {};
+}
+
 1;
 __END__
 
@@ -15,7 +26,7 @@ Net::Amazon::DynamoDB::Marshaler - Translate Perl hashrefs into DynamoDb format 
 
 =head1 SYNOPSIS
 
-  use Net::Amazon::DynamoDB::Marshaler qw(dynamodb_marshal dynamodb_unmarshal);
+  use Net::Amazon::DynamoDB::Marshaler;
 
   my $item = {
     name => 'John Doe',
@@ -109,7 +120,7 @@ Any other value will throw an error.
 
 =head1 EXPORTS
 
-Nothing is exported by default.
+By default, dynamodb_marshal and dynamodb_unmarshal are exported.
 
 =head2 dynamodb_marshal
 
