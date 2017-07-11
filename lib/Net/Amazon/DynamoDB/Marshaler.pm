@@ -7,7 +7,7 @@ our $VERSION = '0.01';
 use parent qw(Exporter);
 our @EXPORT = qw(dynamodb_marshal dynamodb_unmarshal);
 
-use boolean qw(isBoolean);
+use boolean qw(true false isBoolean);
 use Scalar::Util qw(looks_like_number blessed);
 
 sub dynamodb_marshal {
@@ -20,12 +20,22 @@ sub dynamodb_marshal {
 }
 
 sub dynamodb_unmarshal {
-    return {};
+    my ($attrs) = @_;
+    die __PACKAGE__.'dynamodb_unmarshal(): argument must be a hashref' unless (
+        ref $attrs
+        && ref $attrs eq 'HASH'
+    );
+    return _unmarshal_hashref($attrs);
 }
 
 sub _marshal_hashref {
     my ($attrs) = @_;
     return { map { $_ => _marshal_val($attrs->{$_}) } keys %$attrs };
+}
+
+sub _unmarshal_hashref {
+    my ($attrs) = @_;
+    return { map { $_ => _unmarshal_attr_val($attrs->{$_}) } keys %$attrs };
 }
 
 sub _marshal_val {
@@ -40,6 +50,21 @@ sub _marshal_val {
     return { $type => _marshal_hashref($val) } if ($type eq 'M');
 
     die "don't know how to marshal type of $type";
+}
+
+sub _unmarshal_attr_val {
+    my ($attr_val) = @_;
+    my ($type, $val) = %$attr_val;
+
+    return undef if $type eq 'NULL';
+    return $val if $type =~ /^(S|N)$/;
+    return true if $type eq 'BOOL' && $val;
+    return false if $type eq 'BOOL';
+    return Set::Object->new(@$val) if $type =~ /^(NS|SS)$/;
+    return [ map { _unmarshal_attr_val($_) } @$val ] if $type eq 'L';
+    return _unmarshal_hashref($val) if $type eq 'M';
+
+    die "don't know how to unmarshal $type";
 }
 
 sub _val_type {
