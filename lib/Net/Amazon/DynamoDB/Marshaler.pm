@@ -215,7 +215,7 @@ it under the same terms as Perl itself.
 
 =over 4
 
-=item L<Paws> - the author's preferred way to interact with AWS in Perl.
+=item L<Paws::DynamoDB> - the most up-to-date DynamoDB client.
 
 =item L<DynamoDB's attribute format|http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html>
 
