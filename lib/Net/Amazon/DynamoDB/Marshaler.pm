@@ -132,21 +132,6 @@ Net::Amazon::DynamoDB::Marshaler - Translate Perl hashrefs into DynamoDb format 
   # Translate a DynamoDb formatted hashref into regular Perl
   my $item2 = dynamodb_unmarshal($item_dynamodb);
 
-  # Use with Paws:
-  Paws->service('DynamoDB')->PutItem(
-    TableName => 'users',
-    Item => dynamodb_marshal($item),
-  );
-
-  my $user_dynamodb = Paws->service('DynamoDB')->GetItem(
-    TableName => 'users',
-    Key => dynamodb_marshal({
-      name => 'John Doe',
-    })
-  );
-
-  my $user = dynamodb_unmarshal($user_dynamodb);
-
 =head1 DESCRIPTION
 
 AWS' L<DynamoDB|http://aws.amazon.com/dynamodb/> service expects attributes in a somewhat cumbersome format in which you must specify the attribute type as well as its name and value(s). This module simplifies working with DynamoDB by abstracting away the notion of types and letting you use more intuitive data structures.
