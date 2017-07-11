@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 use Test::More;
 use Test::Deep;
 use Test::Fatal;
@@ -255,42 +256,115 @@ sub test_other() {
 
 # Test nested data structure
 sub test_complex() {
+    my @codes = (1234, 5678);
+    my @roles = ('user', 'student');
     my $item = {
         id => 25,
         first_name => 'John',
         last_name => 'Doe',
+        active => true,
+        admin => false,
+        codes => Set::Object->new(@codes),
+        roles => Set::Object->new(@roles),
+        delete_date => undef,
+        favorites => ['math', 'physics', 'chemistry'],
         relationships => {
-            friends => [
-                {
-                    id => 26,
-                },
-            ],
-            managers => undef,
+            teachers => [12, 25],
+            employees => [],
+            students => {
+                past => [11, 45],
+                current => [6, 32],
+            }
         },
+        events => [
+            {
+                type => 'login',
+                date => '2017-07-01',
+            },
+            {
+                type => 'purchase',
+                date => '2017-07-02',
+            },
+        ],
     };
     my $item_dynamodb = {
-        id => { N => 25 },
+        id => { N => '25' },
         first_name => { S => 'John' },
         last_name => { S => 'Doe' },
+        active => { BOOL => 1 },
+        admin => { BOOL => 0 },
+        codes => { NS => \@codes },
+        roles => { SS => \@roles },
+        delete_date => { NULL => 1 },
+        favorites => {
+            L => [
+                { S => 'math' },
+                { S => 'physics' },
+                { S => 'chemistry' },
+            ],
+        },
         relationships => {
             M => {
-                friends => {
+                students => {
+                    M => {
+                        past => {
+                            L => [
+                                { N => '11' },
+                                { N => '45' },
+                            ]
+                        },
+                        current => {
+                            L => [
+                                { N => '6' },
+                                { N => '32' },
+                            ],
+                        },
+                    },
+                },
+                teachers => {
                     L => [
-                        { M => { id => { N => 26 } } },
+                        { N => '12' },
+                        { N => '25' },
                     ],
                 },
-                managers => { NULL => 1 },
-            }
+                employees => {
+                    L => [],
+                },
+            },
+        },
+        events => {
+            L => [
+                {
+                    M => {
+                        type => { S => 'login' },
+                        date => { S => '2017-07-01' },
+                    },
+                },
+                {
+                    M => {
+                        type => { S => 'purchase' },
+                        date => { S => '2017-07-02' },
+                    },
+                },
+            ],
         },
     };
     cmp_deeply(
         dynamodb_marshal($item),
-        $item_dynamodb,
+        {
+            %$item_dynamodb,
+            codes => { NS => set(@codes) },
+            roles => { SS => set(@roles) },
+        },
         'nested data structure marshalled correctly',
     );
     cmp_deeply(
         dynamodb_unmarshal($item_dynamodb),
-        $item,
+        {
+            %$item,
+            codes => isa('Set::Object'),
+            roles => isa('Set::Object'),
+        },
         'nested data structure unmarshalled correctly',
     );
 }
