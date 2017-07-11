@@ -1,11 +1,12 @@
 use strict;
 use Test::More;
+use Test::Deep;
 
 BEGIN { use_ok('Net::Amazon::DynamoDB::Marshaler'); }
 
 # If the value is undef, use Null ('NULL')
 sub test_undef() {
-    is_deeply(
+    cmp_deeply(
         dynamodb_marshal({
             user_id => undef,
         }),
@@ -18,7 +19,7 @@ sub test_undef() {
 
 # If the value looks like a number, use Number ('N').
 sub test_number() {
-    is_deeply(
+    cmp_deeply(
         dynamodb_marshal({
             user_id => '1234',
             pct_complete => 0.33,
@@ -33,7 +34,7 @@ sub test_number() {
 
 # For any other non-reference, use String ('S').
 sub test_scalar() {
-    is_deeply(
+    cmp_deeply(
         dynamodb_marshal({
             first_name => 'John',
             description => 'John is a very good boy',
@@ -48,7 +49,7 @@ sub test_scalar() {
 
 # If the value is an arrayref, use List ('L').
 sub test_list() {
-    is_deeply(
+    cmp_deeply(
         dynamodb_marshal({
             tags => [
                 'complete',
