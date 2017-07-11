@@ -37,7 +37,7 @@ sub _marshal_val {
     return { $type => $val ? 1 : 0 } if $type eq 'BOOL';
     return { $type => [ $val->members ] } if $type =~ /^(NS|SS)$/;
     return { $type => [ map { _marshal_val($_) } @$val ] } if ($type eq 'L');
-    return { $type => { map { $_ => _marshal_val($val->{$_}) } keys %$val } } if ($type eq 'M');
+    return { $type => _marshal_hashref($val) } if ($type eq 'M');
 
     die "don't know how to marshal type of $type";
 }
