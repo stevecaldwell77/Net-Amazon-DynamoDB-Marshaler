@@ -43,9 +43,9 @@ NOTE: this module does not yet support Binary or Binary Set types. Pull requests
 
 See &lt;the AWS documentation|dynamoDb-marshaler|http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes> for more details on the various types supported by DynamoDB.
 
-For a given Perl value, we use the following rules to pick the DynamoDB type (and vice-versa for un-marshaling):
+For a given Perl value, we use the following rules to pick the DynamoDB type:
 
-1. If the value is undef, use Null ('NULL')
+1. If the value is undef or an empty string, use Null ('NULL').
 2. If the value looks like a number, use Number ('N').
 3. For any other non-reference, use String ('S').
 4. If the value is an arrayref, use List ('L').
@@ -53,6 +53,8 @@ For a given Perl value, we use the following rules to pick the DynamoDB type (an
 6. If the value isa [boolean](https://metacpan.org/pod/boolean), use Boolean ('BOOL').
 7. If the value isa [Set::Object](https://metacpan.org/pod/Set::Object), use either Number Set ('NS') or String Set ('SS'), depending on whether all members look like numbers or not. All members must be defined, non-reference values, or an error will be thrown.
 8. Any other value will throw an error.
+
+When doing the opposite - un-marshalling a hashref fetched from DynamoDB - the module applies the rules above in reverse. Please note that NULLs get unmarshalled as undefs, so an empty string will be re-written to undef if it goes through a marshal/unmarshal cycle. DynamoDB does not allow for a way to store empty strings as distinct from NULL.
 
 # EXPORTS
 
