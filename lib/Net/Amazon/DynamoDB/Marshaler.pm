@@ -2,7 +2,7 @@ package Net::Amazon::DynamoDB::Marshaler;
 
 use strict;
 use 5.008_005;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use parent qw(Exporter);
 our @EXPORT = qw(dynamodb_marshal dynamodb_unmarshal);
