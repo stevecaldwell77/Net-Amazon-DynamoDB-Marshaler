@@ -72,7 +72,7 @@ sub _val_type {
 
     return 'NULL' if ! defined $val;
     return 'NULL' if $val eq '';
-    return 'N' if !ref $val && looks_like_number($val);
+    return 'N' if _is_number($val);
     return 'S' if !ref $val;
 
     return 'BOOL' if isBoolean($val);
@@ -94,6 +94,27 @@ sub _val_type {
 
     die __PACKAGE__.": unable to marshal value: $val";
 }
+
+sub _is_number {
+    my ($val) = @_;
+    return (
+        (!ref $val)
+        && looks_like_number($val)
+        && (
+            $val == 0
+            || (
+                $val < '1E+126'
+                && $val > '1E-130'
+            )
+            || (
+                $val < '-1E-130'
+                && $val > '-1E+126'
+            )
+        )
+        && length($val) <= 38
+    );
+}
+
 
 1;
 __END__
@@ -155,7 +176,7 @@ If the value is undef or an empty string, use Null ('NULL').
 
 =item 2.
 
-If the value looks like a number, use Number ('N').
+If the value looks like a number, and falls within the accepted range for a DynamoDB number, use Number ('N').
 
 =item 3.
 

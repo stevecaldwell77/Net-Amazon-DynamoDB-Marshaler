@@ -67,6 +67,63 @@ sub test_number() {
     );
 }
 
+# If it looks like a number, but is too large/precise for DynamoDB, use
+# String('S').
+sub test_out_of_range_number() {
+    my $item = {
+        ok_large            => '1E+125',
+        ok_small            => '1E-129',
+        ok_small_negative   => '-1E-129',
+        ok_large_negative   => '-1E+125',
+        ok_precise          => 1x38,
+        too_large           => '1E+126',
+        too_small           => '1E-130',
+        too_small_negative  => '-1E-130',
+        too_large_negative  => '-1E+126',
+        too_precise         => 1x39,
+        too_precise2        => '1.'.(1x38),
+    };
+    cmp_deeply(
+        dynamodb_marshal($item),
+        {
+            ok_large => {
+                N => '1E+125',
+            },
+            ok_small => {
+                N => '1E-129',
+            },
+            ok_small_negative => {
+                N => '-1E-129',
+            },
+            ok_large_negative => {
+                N => '-1E+125',
+            },
+            ok_precise => {
+                N => 1x38,
+            },
+            too_large => {
+                S => '1E+126',
+            },
+            too_small => {
+                S => '1E-130',
+            },
+            too_small_negative => {
+                S => '-1E-130',
+            },
+            too_large_negative => {
+                S => '-1E+126',
+            },
+            too_precise => {
+                S => 1x39,
+            },
+            too_precise2 => {
+                S => '1.'.(1x38),
+            },
+        },
+        'out-of-bounds numbers marshalled to S',
+    );
+}
+
 # For any other non-reference, use String ('S').
 sub test_scalar() {
     my $item = {
@@ -387,6 +444,7 @@ sub test_complex() {
 test_undef();
 test_empty_string();
 test_number();
+test_out_of_range_number();
 test_scalar();
 test_list();
 test_map();
