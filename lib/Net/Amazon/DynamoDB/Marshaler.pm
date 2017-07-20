@@ -143,7 +143,7 @@ NOTE: this module does not yet support Binary or Binary Set types. Pull requests
 
 =head1 CONVERSION RULES
 
-See <the AWS documentation|dynamoDb-marshaler|http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes> for more details on the various types supported by DynamoDB.
+See <the AWS documentation|http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes> for more details on the various types supported by DynamoDB.
 
 For a given Perl value, we use the following rules to pick the DynamoDB type:
 
