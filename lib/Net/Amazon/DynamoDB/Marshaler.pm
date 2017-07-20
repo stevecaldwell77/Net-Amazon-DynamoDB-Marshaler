@@ -71,6 +71,7 @@ sub _val_type {
     my ($val) = @_;
 
     return 'NULL' if ! defined $val;
+    return 'NULL' if $val eq '';
     return 'N' if !ref $val && looks_like_number($val);
     return 'S' if !ref $val;
 
@@ -144,13 +145,13 @@ NOTE: this module does not yet support Binary or Binary Set types. Pull requests
 
 See <the AWS documentation|dynamoDb-marshaler|http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes> for more details on the various types supported by DynamoDB.
 
-For a given Perl value, we use the following rules to pick the DynamoDB type (and vice-versa for un-marshaling):
+For a given Perl value, we use the following rules to pick the DynamoDB type:
 
 =over 4
 
 =item 1.
 
-If the value is undef, use Null ('NULL')
+If the value is undef or an empty string, use Null ('NULL').
 
 =item 2.
 
@@ -181,6 +182,8 @@ If the value isa L<Set::Object>, use either Number Set ('NS') or String Set ('SS
 Any other value will throw an error.
 
 =back
+
+When doing the opposite - un-marshalling a hashref fetched from DynamoDB - the module applies the rules above in reverse. Please note that NULLs get unmarshalled as undefs, so an empty string will be re-written to undef if it goes through a marshal/unmarshal cycle. DynamoDB does not allow for a way to store empty strings as distinct from NULL.
 
 =head1 EXPORTS
 

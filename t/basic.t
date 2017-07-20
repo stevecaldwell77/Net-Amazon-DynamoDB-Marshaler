@@ -30,6 +30,21 @@ sub test_undef() {
     );
 }
 
+# If the value is an empty string, use Null ('NULL')
+sub test_empty_string() {
+    my $item = {
+        user_id => '',
+    };
+    my $item_dynamodb = {
+        user_id => { NULL => '1' },
+    };
+    cmp_deeply(
+        dynamodb_marshal($item),
+        $item_dynamodb,
+        'empty string marshalled to NULL',
+    );
+}
+
 # If the value looks like a number, use Number ('N').
 sub test_number() {
     my $item = {
@@ -370,6 +385,7 @@ sub test_complex() {
 }
 
 test_undef();
+test_empty_string();
 test_number();
 test_scalar();
 test_list();
