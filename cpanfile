@@ -13,4 +13,5 @@ on test => sub {
 
 on develop => sub {
     requires 'Dist::Milla';
+    requires 'Test::Pod';
 }
