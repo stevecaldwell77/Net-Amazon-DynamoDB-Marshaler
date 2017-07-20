@@ -41,12 +41,12 @@ NOTE: this module does not yet support Binary or Binary Set types. Pull requests
 
 # CONVERSION RULES
 
-See &lt;the AWS documentation|dynamoDb-marshaler|http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes> for more details on the various types supported by DynamoDB.
+See &lt;the AWS documentation|http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes> for more details on the various types supported by DynamoDB.
 
 For a given Perl value, we use the following rules to pick the DynamoDB type:
 
 1. If the value is undef or an empty string, use Null ('NULL').
-2. If the value looks like a number, use Number ('N').
+2. If the value looks like a number, and falls within the accepted range for a DynamoDB number, use Number ('N').
 3. For any other non-reference, use String ('S').
 4. If the value is an arrayref, use List ('L').
 5. If the value is a hashref, use Map ('M').
