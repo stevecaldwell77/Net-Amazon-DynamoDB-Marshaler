@@ -10,3 +10,7 @@ on test => sub {
     requires 'Test::Fatal';
     requires 'Test::More', '0.96';
 };
+
+on develop => sub {
+    requires 'Dist::Milla';
+}
