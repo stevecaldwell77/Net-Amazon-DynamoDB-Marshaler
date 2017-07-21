@@ -40,6 +40,7 @@
             "Exporter" : "0",
             "Scalar::Util" : "0",
             "Set::Object" : "0",
+            "Type::Tiny" : "0",
             "boolean" : "0",
             "perl" : "5.008005"
          }

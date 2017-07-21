@@ -46,12 +46,12 @@ See &lt;the AWS documentation|http://docs.aws.amazon.com/amazondynamodb/latest/d
 For a given Perl value, we use the following rules to pick the DynamoDB type:
 
 1. If the value is undef or an empty string, use Null ('NULL').
-2. If the value looks like a number, and falls within the accepted range for a DynamoDB number, use Number ('N').
+2. If the value is a number (per StrictNum in [Types::Standard](https://metacpan.org/pod/Types::Standard)), and falls within the accepted range for a DynamoDB number, use Number ('N').
 3. For any other non-reference, use String ('S').
 4. If the value is an arrayref, use List ('L').
 5. If the value is a hashref, use Map ('M').
 6. If the value isa [boolean](https://metacpan.org/pod/boolean), use Boolean ('BOOL').
-7. If the value isa [Set::Object](https://metacpan.org/pod/Set::Object), use either Number Set ('NS') or String Set ('SS'), depending on whether all members look like numbers or not. All members must be defined, non-reference values, or an error will be thrown.
+7. If the value isa [Set::Object](https://metacpan.org/pod/Set::Object), use either Number Set ('NS') or String Set ('SS'), depending on whether all members are numbers or not. All members must be defined, non-reference values, or an error will be thrown.
 8. Any other value will throw an error.
 
 When doing the opposite - un-marshalling a hashref fetched from DynamoDB - the module applies the rules above in reverse. Please note that NULLs get unmarshalled as undefs, so an empty string will be re-written to undef if it goes through a marshal/unmarshal cycle. DynamoDB does not allow for a way to store empty strings as distinct from NULL.
@@ -64,7 +64,34 @@ By default, dynamodb\_marshal and dynamodb\_unmarshal are exported.
 
 Takes in a "normal" Perl hashref, transforms it into DynamoDB format.
 
-    my $attrs_marshalled = dynamodb_marshal($attrs);
+    my $attrs_marshalled = dynamodb_marshal($attrs[, force_type => {}]);
+
+### force\_type
+
+Sometimes you want to explicitly choose a type for an attribute, overridding the rules above. Most commonly this issue occurs for key attributes, as DynamoDB enforces consistent typing on these attributes that it doesn't enforce otherwise.
+
+For instance, you might have a table named 'users' whose partition key is a string named 'username'. If you have incoming data with a username of '1234', this module will tell DynamoDB to store that as a number, which will result in an error.
+
+Use force\_type in that situation:
+
+    my $item = {
+        username => '1234',
+        ...
+    };
+
+    my $force_type = {
+        username => 'S',
+    };
+
+    my $item_dynamodb = dynamodb_marshal($item, force_type => $force_type);
+
+    # $item_dynamodb looks like:
+    # {
+    #   username => {
+    #     S => '1234',
+    #   },
+    #   ...
+    # };
 
 ## dynamodb\_unmarshal
 
