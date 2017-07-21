@@ -93,6 +93,10 @@ Use force\_type in that situation:
     #   ...
     # };
 
+The module only supports 'S' and 'N' types for force\_type. If you specify 'S', dynamodb\_marshal will stringify the value, so make sure not to send arrays, etc. as values. If you specify 'N', dynamodb\_marshal will set the value to undef if it's not a number.
+
+Undefs or empty string values for force\_type attributes will be removed from the marshalled hashref. While this behavior might not seem intuitive at first, it's almost certainly what you want. For instance, if you have a global secondary index on a string attribute, and your item has an undef value for that attribute, you want to avoid sending that attribute (using NULL would be rejected by DynamoDB, and you can't send empty strings). If you have an undef value for a primary key string attribute, you have a bug in your application somewhere.
+
 ## dynamodb\_unmarshal
 
 The opposite of dynamodb\_marshal.

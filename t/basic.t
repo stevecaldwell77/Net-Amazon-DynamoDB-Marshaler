@@ -440,15 +440,14 @@ sub test_complex() {
     );
 }
 
-sub test_force_type() {
+sub test_force_type_string() {
     my $item = {
         username => '1234',
         email_address => 'john@example.com',
         age => 24,
-    };
-    my $expected = {
-        first_name => { S => 'John' },
-        description => { S => 'John is a very good boy' },
+        family => undef,
+        nickname => '',
+        category => ['main'],
     };
     cmp_deeply(
         dynamodb_marshal($item),
@@ -456,11 +455,17 @@ sub test_force_type() {
             username      => { N => '1234' },
             email_address => { S => 'john@example.com' },
             age           => { N => 24 },
+            family        => { NULL => 1 },
+            nickname      => { NULL => 1 },
+            category      => { L => [ { S => 'main' } ] },
         },
-        'attribute marshalled to N with no force_type',
+        'attribute marshalled to derived types with no force_type',
     );
     my $force_type = {
         username => 'S',
+        family   => 'S',
+        category => 'S',
+        nickname => 'S',
     };
     cmp_deeply(
         dynamodb_marshal($item, force_type => $force_type),
@@ -468,8 +473,58 @@ sub test_force_type() {
             username      => { S => '1234' },
             email_address => { S => 'john@example.com' },
             age           => { N => 24 },
+            category      => { S => re('^ARRAY') },
         },
-        'attribute marshalled to S via force_type',
+        'attributes marshalled to S via force_type, undefs dropped',
+    );
+}
+
+sub test_force_type_number() {
+    my $item = {
+        user_id  => '1234',
+        rank     => undef,
+        age      => 'twenty-five',
+        category => ['main'],
+    };
+    cmp_deeply(
+        dynamodb_marshal($item),
+        {
+            user_id  => { N => '1234' },
+            rank     => { NULL => 1 },
+            age      => { S => 'twenty-five' },
+            category => { L => [ { S => 'main' } ] },
+        },
+        'attribute marshalled to derived types with no force_type',
+    );
+    my $force_type = {
+        user_id  => 'N',
+        rank     => 'N',
+        age      => 'N',
+        category => 'N',
+    };
+    cmp_deeply(
+        dynamodb_marshal($item, force_type => $force_type),
+        {
+            user_id  => { N => '1234' },
+        },
+        'attributes marshalled to N via force_type, undefs dropped',
+    );
+}
+
+sub test_force_type_other() {
+    like(
+        exception {
+            dynamodb_marshal(
+                {
+                    colors => [qw(red yellow green)],
+                },
+                force_type => {
+                    colors => 'L',
+                },
+            );
+        },
+        qr/force_type only supports "S" and "N" types/,
+        'Error thrown on bad force_type value',
     );
 }
 
@@ -486,6 +541,8 @@ test_string_set();
 test_set_error();
 test_other();
 test_complex();
-test_force_type();
+test_force_type_string();
+test_force_type_number();
+test_force_type_other();
 
 done_testing;
