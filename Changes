@@ -1,6 +1,7 @@
 Revision history for Net-Amazon-DynamoDB-Marshaler
 
 {{$NEXT}}
+        - Added force_type option to dynamodb_marshal()
         - Refactor how we check for numnbers, using Types::Standard instead of looks_like_number.
 
 0.03  2017-07-20 23:15:29 UTC

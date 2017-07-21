@@ -12,12 +12,17 @@ use Scalar::Util qw(blessed);
 use Types::Standard qw(StrictNum);
 
 sub dynamodb_marshal {
-    my ($attrs) = @_;
+    my ($attrs, %args) = @_;
+    my $force_type = $args{force_type} || {};
     die __PACKAGE__.'dynamodb_marshal(): argument must be a hashref' unless (
         ref $attrs
         && ref $attrs eq 'HASH'
     );
-    return _marshal_hashref($attrs);
+    die __PACKAGE__.'dynamodb_marshal(): force_type must be a hashref' unless (
+        ref $force_type
+        && ref $force_type eq 'HASH'
+    );
+    return _marshal_hashref($attrs, $force_type);
 }
 
 sub dynamodb_unmarshal {
@@ -30,8 +35,12 @@ sub dynamodb_unmarshal {
 }
 
 sub _marshal_hashref {
-    my ($attrs) = @_;
-    return { map { $_ => _marshal_val($attrs->{$_}) } keys %$attrs };
+    my ($attrs, $force_type) = @_;
+    $force_type ||= {};
+    return {
+        map { $_ => _marshal_val($attrs->{$_}, $force_type->{$_}) }
+        keys %$attrs
+    };
 }
 
 sub _unmarshal_hashref {
@@ -40,8 +49,8 @@ sub _unmarshal_hashref {
 }
 
 sub _marshal_val {
-    my ($val) = @_;
-    my $type = _val_type($val);
+    my ($val, $type) = @_;
+    $type ||= _val_type($val);
 
     return { $type => $val } if $type =~ /^(N|S)$/;
     return { $type => 1 } if $type eq 'NULL';
@@ -215,7 +224,34 @@ By default, dynamodb_marshal and dynamodb_unmarshal are exported.
 
 Takes in a "normal" Perl hashref, transforms it into DynamoDB format.
 
-  my $attrs_marshalled = dynamodb_marshal($attrs);
+  my $attrs_marshalled = dynamodb_marshal($attrs[, force_type => {}]);
+
+=head3 force_type
+
+Sometimes you want to explicitly choose a type for an attribute, overridding the rules above. Most commonly this issue occurs for key attributes, as DynamoDB enforces consistent typing on these attributes that it doesn't enforce otherwise.
+
+For instance, you might have a table named 'users' whose partition key is a string named 'username'. If you have incoming data with a username of '1234', this module will tell DynamoDB to store that as a number, which will result in an error.
+
+Use force_type in that situation:
+
+  my $item = {
+      username => '1234',
+      ...
+  };
+
+  my $force_type = {
+      username => 'S',
+  };
+
+  my $item_dynamodb = dynamodb_marshal($item, force_type => $force_type);
+
+  # $item_dynamodb looks like:
+  # {
+  #   username => {
+  #     S => '1234',
+  #   },
+  #   ...
+  # };
 
 =head2 dynamodb_unmarshal
 

@@ -440,6 +440,39 @@ sub test_complex() {
     );
 }
 
+sub test_force_type() {
+    my $item = {
+        username => '1234',
+        email_address => 'john@example.com',
+        age => 24,
+    };
+    my $expected = {
+        first_name => { S => 'John' },
+        description => { S => 'John is a very good boy' },
+    };
+    cmp_deeply(
+        dynamodb_marshal($item),
+        {
+            username      => { N => '1234' },
+            email_address => { S => 'john@example.com' },
+            age           => { N => 24 },
+        },
+        'attribute marshalled to N with no force_type',
+    );
+    my $force_type = {
+        username => 'S',
+    };
+    cmp_deeply(
+        dynamodb_marshal($item, force_type => $force_type),
+        {
+            username      => { S => '1234' },
+            email_address => { S => 'john@example.com' },
+            age           => { N => 24 },
+        },
+        'attribute marshalled to S via force_type',
+    );
+}
+
 test_undef();
 test_empty_string();
 test_number();
@@ -453,5 +486,6 @@ test_string_set();
 test_set_error();
 test_other();
 test_complex();
+test_force_type();
 
 done_testing;
