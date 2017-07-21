@@ -4,6 +4,7 @@ requires 'boolean';
 requires 'Exporter';
 requires 'Scalar::Util';
 requires 'Set::Object';
+requires 'Type::Tiny';
 
 on test => sub {
     requires 'Test::Deep';

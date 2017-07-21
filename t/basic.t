@@ -45,7 +45,7 @@ sub test_empty_string() {
     );
 }
 
-# If the value looks like a number, use Number ('N').
+# If the value is a number, use Number ('N').
 sub test_number() {
     my $item = {
         user_id => '1234',
@@ -67,8 +67,7 @@ sub test_number() {
     );
 }
 
-# If it looks like a number, but is too large/precise for DynamoDB, use
-# String('S').
+# If it's a number, but is too large/precise for DynamoDB, use String('S').
 sub test_out_of_range_number() {
     my $item = {
         ok_large            => '1E+125',
@@ -226,8 +225,8 @@ sub test_boolean() {
     );
 }
 
-# If the value isa Set::Object, use Number Set ('NS') if all members look
-# like numbers.
+# If the value isa Set::Object, use Number Set ('NS') if all members are
+# numbers.
 sub test_number_set() {
     my $item = {
         scores => Set::Object->new(5, 7, 25, 32.4),
@@ -263,8 +262,8 @@ sub test_number_set() {
     );
 }
 
-# If the value isa Set::Object, use String Set ('SS') if one member does not
-# look like a number.
+# If the value isa Set::Object, use String Set ('SS') if one member is not
+# a number.
 sub test_string_set() {
     my $item = {
         tags => Set::Object->new(54, 'clothing', 'female'),

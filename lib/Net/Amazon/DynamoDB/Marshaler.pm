@@ -8,7 +8,8 @@ use parent qw(Exporter);
 our @EXPORT = qw(dynamodb_marshal dynamodb_unmarshal);
 
 use boolean qw(true false isBoolean);
-use Scalar::Util qw(looks_like_number blessed);
+use Scalar::Util qw(blessed);
+use Types::Standard qw(StrictNum);
 
 sub dynamodb_marshal {
     my ($attrs) = @_;
@@ -99,7 +100,7 @@ sub _is_number {
     my ($val) = @_;
     return (
         (!ref $val)
-        && looks_like_number($val)
+        && StrictNum->check($val)
         && (
             $val == 0
             || (
@@ -176,7 +177,7 @@ If the value is undef or an empty string, use Null ('NULL').
 
 =item 2.
 
-If the value looks like a number, and falls within the accepted range for a DynamoDB number, use Number ('N').
+If the value is a number (per StrictNum in L<Types::Standard>), and falls within the accepted range for a DynamoDB number, use Number ('N').
 
 =item 3.
 
@@ -196,7 +197,7 @@ If the value isa L<boolean>, use Boolean ('BOOL').
 
 =item 7.
 
-If the value isa L<Set::Object>, use either Number Set ('NS') or String Set ('SS'), depending on whether all members look like numbers or not. All members must be defined, non-reference values, or an error will be thrown.
+If the value isa L<Set::Object>, use either Number Set ('NS') or String Set ('SS'), depending on whether all members are numbers or not. All members must be defined, non-reference values, or an error will be thrown.
 
 =item 8.
 
