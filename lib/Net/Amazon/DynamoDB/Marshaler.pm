@@ -14,23 +14,26 @@ use Types::Standard qw(StrictNum);
 sub dynamodb_marshal {
     my ($attrs, %args) = @_;
     my $force_type = $args{force_type} || {};
-    die __PACKAGE__.'dynamodb_marshal(): argument must be a hashref' unless (
-        ref $attrs
-        && ref $attrs eq 'HASH'
-    );
-    die __PACKAGE__.'dynamodb_marshal(): force_type must be a hashref' unless (
-        ref $force_type
-        && ref $force_type eq 'HASH'
-    );
+    die __PACKAGE__.'::dynamodb_marshal(): argument must be a hashref'
+        unless (
+            ref $attrs
+            && ref $attrs eq 'HASH'
+        );
+    die __PACKAGE__.'::dynamodb_marshal(): force_type must be a hashref'
+        unless (
+            ref $force_type
+            && ref $force_type eq 'HASH'
+        );
     return _marshal_hashref($attrs, $force_type);
 }
 
 sub dynamodb_unmarshal {
     my ($attrs) = @_;
-    die __PACKAGE__.'dynamodb_unmarshal(): argument must be a hashref' unless (
-        ref $attrs
-        && ref $attrs eq 'HASH'
-    );
+    die __PACKAGE__.'::dynamodb_unmarshal(): argument must be a hashref'
+        unless (
+            ref $attrs
+            && ref $attrs eq 'HASH'
+        );
     return _unmarshal_hashref($attrs);
 }
 
