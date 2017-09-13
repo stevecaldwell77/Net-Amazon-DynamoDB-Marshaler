@@ -81,6 +81,7 @@ sub test_out_of_range_number() {
         too_large_negative  => '-1E+126',
         too_precise         => 1x39,
         too_precise2        => '1.'.(1x38),
+        super_large         => '6e3341866116', # this evaluates to 0
     };
     cmp_deeply(
         dynamodb_marshal($item),
@@ -118,6 +119,9 @@ sub test_out_of_range_number() {
             too_precise2 => {
                 S => '1.'.(1x38),
             },
+            super_large => {
+                S => '6e3341866116',
+            }
         },
         'out-of-bounds numbers marshalled to S',
     );

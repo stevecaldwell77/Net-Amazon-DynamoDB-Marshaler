@@ -136,22 +136,22 @@ sub _val_type {
 
 sub _is_number {
     my ($val) = @_;
-    return (
-        (!ref $val)
-        && StrictNum->check($val)
-        && (
-            $val == 0
-            || (
-                $val < '1E+126'
-                && $val > '1E-130'
-            )
-            || (
-                $val < '-1E-130'
-                && $val > '-1E+126'
-            )
-        )
-        && length($val) <= 38
-    );
+    return 0 if ref $val;
+    return 0 unless StrictNum->check($val);
+
+    # Some very high numbers are equal to 0, keep those as strings
+    return 1 if ("$val" eq '0');
+    return 0 if ($val == 0);
+
+    return 0 if ($val > 0 && $val <= 1e-130);
+    return 0 if ($val < 0 && $val >= -1e-130);
+
+    return 0 if ($val >= 1e126);
+    return 0 if ($val <= -1e126);
+
+    return 0 if length($val) > 38;
+
+    return 1;
 }
 
 
