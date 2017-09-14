@@ -86,7 +86,7 @@ sub _marshal_val_force_type {
     my ($val, $type) = @_;
 
     if ($type eq 'N') {
-        return undef unless StrictNum->check($val);
+        return undef unless _is_valid_number($val);
         return { N => $val };
     }
 
@@ -118,7 +118,7 @@ sub _val_type {
 
     return 'NULL' if ! defined $val;
     return 'NULL' if $val eq '';
-    return 'N' if _is_number($val);
+    return 'N' if _is_valid_number($val);
     return 'S' if !ref $val;
 
     return 'BOOL' if isBoolean($val);
@@ -141,7 +141,7 @@ sub _val_type {
     die __PACKAGE__.": unable to marshal value: $val";
 }
 
-sub _is_number {
+sub _is_valid_number {
     my ($val) = @_;
     return 0 if ref $val;
     return 0 unless StrictNum->check($val);
