@@ -24,6 +24,13 @@ sub dynamodb_marshal {
             ref $force_type
             && ref $force_type eq 'HASH'
         );
+
+    die __PACKAGE__.qq|::dynamodb_marshal(): invalid force_type value for "$_"|
+        for grep {
+            $force_type->{$_} !~ /^[SN]$/;
+        }
+        keys %$force_type;
+
     return _marshal_hashref($attrs, $force_type);
 }
 
