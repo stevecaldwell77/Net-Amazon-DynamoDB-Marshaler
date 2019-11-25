@@ -46,12 +46,12 @@ See &lt;the AWS documentation|http://docs.aws.amazon.com/amazondynamodb/latest/d
 For a given Perl value, we use the following rules to pick the DynamoDB type:
 
 1. If the value is undef or an empty string, use Null ('NULL').
-2. If the value is a number (per StrictNum in [Types::Standard](https://metacpan.org/pod/Types::Standard)), and falls within the accepted range for a DynamoDB number, use Number ('N').
+2. If the value is a number (per StrictNum in [Types::Standard](https://metacpan.org/pod/Types%3A%3AStandard)), and falls within the accepted range for a DynamoDB number, use Number ('N').
 3. For any other non-reference, use String ('S').
 4. If the value is an arrayref, use List ('L').
 5. If the value is a hashref, use Map ('M').
 6. If the value isa [boolean](https://metacpan.org/pod/boolean), use Boolean ('BOOL').
-7. If the value isa [Set::Object](https://metacpan.org/pod/Set::Object), use either Number Set ('NS') or String Set ('SS'), depending on whether all members are numbers or not. All members must be defined, non-reference values, or an error will be thrown.
+7. If the value isa [Set::Object](https://metacpan.org/pod/Set%3A%3AObject), use either Number Set ('NS') or String Set ('SS'), depending on whether all members are numbers or not. All members must be defined, non-reference values, or an error will be thrown.
 8. Any other value will throw an error.
 
 When doing the opposite - un-marshalling a hashref fetched from DynamoDB - the module applies the rules above in reverse. Please note that NULLs get unmarshalled as undefs, so an empty string will be re-written to undef if it goes through a marshal/unmarshal cycle. DynamoDB does not allow for a way to store empty strings as distinct from NULL.
@@ -120,12 +120,12 @@ it under the same terms as Perl itself.
 
 # SEE ALSO
 
-- [Paws::DynamoDB](https://metacpan.org/pod/Paws::DynamoDB) - the most up-to-date DynamoDB client.
+- [Paws::DynamoDB](https://metacpan.org/pod/Paws%3A%3ADynamoDB) - the most up-to-date DynamoDB client.
 - [DynamoDB's attribute format](http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
-- [Amazon::DynamoDB](https://metacpan.org/pod/Amazon::DynamoDB) - DynamoDB client that does conversion for you.
-- [Net::Amazon::DynamoDB](https://metacpan.org/pod/Net::Amazon::DynamoDB) - DynamoDB client that does conversion for you.
-- [WebService::Amazon::DynamoDB](https://metacpan.org/pod/WebService::Amazon::DynamoDB) - DynamoDB client that does conversion for you.
-- [Net::Amazon::DynamoDB::Table](https://metacpan.org/pod/Net::Amazon::DynamoDB::Table) - DynamoDB client that does conversion for you.
+- [Amazon::DynamoDB](https://metacpan.org/pod/Amazon%3A%3ADynamoDB) - DynamoDB client that does conversion for you.
+- [Net::Amazon::DynamoDB](https://metacpan.org/pod/Net%3A%3AAmazon%3A%3ADynamoDB) - DynamoDB client that does conversion for you.
+- [WebService::Amazon::DynamoDB](https://metacpan.org/pod/WebService%3A%3AAmazon%3A%3ADynamoDB) - DynamoDB client that does conversion for you.
+- [Net::Amazon::DynamoDB::Table](https://metacpan.org/pod/Net%3A%3AAmazon%3A%3ADynamoDB%3A%3ATable) - DynamoDB client that does conversion for you.
 - [dynamoDb-marshaler](https://github.com/CascadeEnergy/dynamoDb-marshaler) - JavaScript library that performs a similar function.
 
 # ACKNOWLEDGEMENTS
